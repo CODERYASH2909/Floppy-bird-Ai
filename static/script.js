@@ -23,6 +23,7 @@ const PIPE_WIDTH = 60;
 const PIPE_GAP = 160;
 const PIPE_SPEED = 3.5;
 const PIPE_SPACING = 220;
+const FRAME_MS = 1000 / 60;
 
 // ---------------- DOM references ----------------
 const canvas = document.getElementById("gameCanvas");
@@ -61,6 +62,7 @@ let bestScore = parseInt(localStorage.getItem("flappyBestScore") || "0", 10);
 bestScoreValue.textContent = bestScore;
 
 let animationId = null;
+let lastFrameTime = null;
 
 // ---------------- Welcome screen ----------------
 nameForm.addEventListener("submit", (e) => {
@@ -217,8 +219,16 @@ function draw() {
 }
 
 // ---------------- Game loop ----------------
-function loop() {
-  update();
+function loop(timestamp) {
+  if (lastFrameTime === null) {
+    lastFrameTime = timestamp;
+  }
+
+  if (timestamp - lastFrameTime >= FRAME_MS) {
+    update();
+    lastFrameTime = timestamp;
+  }
+
   draw();
   if (alive) {
     animationId = requestAnimationFrame(loop);
@@ -227,6 +237,7 @@ function loop() {
 
 function startLoop() {
   cancelAnimationFrame(animationId);
+  lastFrameTime = null;
   animationId = requestAnimationFrame(loop);
 }
 
