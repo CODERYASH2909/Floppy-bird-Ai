@@ -28,6 +28,12 @@ const PIPE_SPACING = 220;
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+const welcomeScreen = document.getElementById("welcomeScreen");
+const nameForm = document.getElementById("nameForm");
+const playerNameInput = document.getElementById("playerNameInput");
+const playerGreeting = document.getElementById("playerGreeting");
+const appContent = document.querySelectorAll(".app-content");
+
 const startOverlay = document.getElementById("startOverlay");
 const gameOverOverlay = document.getElementById("gameOverOverlay");
 const finalScoreText = document.getElementById("finalScoreText");
@@ -55,6 +61,22 @@ let bestScore = parseInt(localStorage.getItem("flappyBestScore") || "0", 10);
 bestScoreValue.textContent = bestScore;
 
 let animationId = null;
+
+// ---------------- Welcome screen ----------------
+nameForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const playerName = playerNameInput.value.trim() || "Gamer";
+  localStorage.setItem("flappyPlayerName", playerName);
+  playerGreeting.textContent = `Welcome, ${playerName}. Ready to fly?`;
+  welcomeScreen.classList.add("hidden-page");
+  appContent.forEach((el) => el.classList.remove("hidden-page"));
+  draw();
+});
+
+const savedPlayerName = localStorage.getItem("flappyPlayerName");
+if (savedPlayerName) {
+  playerNameInput.value = savedPlayerName;
+}
 
 // ---------------- Entities ----------------
 function newBird() {
