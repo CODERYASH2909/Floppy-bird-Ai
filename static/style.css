@@ -1,0 +1,387 @@
+/* ============================================================
+   Flappy AI — visual identity
+   Palette:
+     --bg        #0A0E17  near-black navy backdrop
+     --panel     #121826  panel / card surface
+     --panel-2   #1A2236  raised card surface
+     --line      #2A3450  hairline borders
+     --cyan      #4CE0D2  primary accent (manual / calm)
+     --pink      #FF4D9E  AI / learning accent
+     --amber     #FFC857  score / highlight accent
+     --ink       #EAF2F2  primary text
+     --ink-dim   #93A0BD  secondary text
+   Type:
+     display -> 'Press Start 2P'  (pixel arcade, used sparingly)
+     body    -> 'Space Grotesk'
+     mono    -> 'JetBrains Mono'  (numbers / stats)
+   ============================================================ */
+
+:root {
+  --bg: #0a0e17;
+  --panel: #121826;
+  --panel-2: #1a2236;
+  --line: #2a3450;
+  --cyan: #4ce0d2;
+  --pink: #ff4d9e;
+  --amber: #ffc857;
+  --ink: #eaf2f2;
+  --ink-dim: #93a0bd;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Space Grotesk', sans-serif;
+  min-height: 100vh;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(76, 224, 210, 0.08), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(255, 77, 158, 0.08), transparent 40%);
+}
+
+/* Subtle CRT scanline texture over everything — the signature touch */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.025) 0px,
+    rgba(255, 255, 255, 0.025) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+}
+
+/* ---------------- Header ---------------- */
+
+.topbar {
+  text-align: center;
+  padding: 40px 20px 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  color: var(--cyan);
+  font-size: 1.4rem;
+  transform: rotate(90deg);
+  display: inline-block;
+}
+
+.topbar h1 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.6rem;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+.topbar .accent { color: var(--pink); }
+
+.tagline {
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+  margin-top: 12px;
+}
+
+/* ---------------- Layout ---------------- */
+
+.layout {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 10px 24px 40px;
+  display: grid;
+  grid-template-columns: 500px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+/* ---------------- Cabinet / game screen ---------------- */
+
+.cabinet {
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.cabinet-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 6px 14px;
+}
+
+.cabinet-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--ink-dim);
+  letter-spacing: 2px;
+}
+
+.mode-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  transition: all 0.25s ease;
+}
+
+.mode-pill.ai-active {
+  border-color: var(--pink);
+  color: var(--pink);
+  box-shadow: 0 0 12px rgba(255, 77, 158, 0.5);
+}
+
+.screen-frame {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid var(--line);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+#gameCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: linear-gradient(180deg, #0d1b2a 0%, #142a3d 70%, #1c3b2f 100%);
+  cursor: pointer;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(10, 14, 23, 0.72);
+  backdrop-filter: blur(2px);
+  text-align: center;
+  padding: 20px;
+}
+
+.overlay.hidden { display: none; }
+
+.overlay-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.1rem;
+  color: var(--amber);
+  margin: 0;
+}
+
+.overlay-sub {
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+kbd {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.cabinet-bottom {
+  display: flex;
+  gap: 10px;
+  padding-top: 16px;
+  flex-wrap: wrap;
+}
+
+/* ---------------- Buttons ---------------- */
+
+.btn {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn:hover { transform: translateY(-2px); border-color: var(--cyan); }
+.btn:active { transform: translateY(0); }
+
+.btn-primary {
+  background: var(--cyan);
+  color: #06201d;
+  border-color: var(--cyan);
+}
+.btn-primary:hover { box-shadow: 0 0 18px rgba(76, 224, 210, 0.5); }
+
+.btn-ai {
+  background: linear-gradient(120deg, var(--pink), #b23bff);
+  color: #1a0620;
+  border-color: transparent;
+  flex: 1;
+}
+.btn-ai:hover { box-shadow: 0 0 18px rgba(255, 77, 158, 0.5); }
+.btn-ai.active { outline: 2px solid var(--pink); outline-offset: 2px; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-dim);
+  font-size: 0.8rem;
+}
+.btn-ghost:hover { color: var(--pink); border-color: var(--pink); }
+
+/* ---------------- Side panel ---------------- */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.stat-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--ink-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--amber);
+}
+
+.status-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ink-dim);
+  margin-top: 6px;
+  flex-shrink: 0;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.status-dot.training {
+  background: var(--pink);
+  box-shadow: 0 0 10px var(--pink);
+  animation: pulse 1s infinite ease-in-out;
+}
+
+.status-dot.playing {
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.status-text {
+  margin: 6px 0 0;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+.info-box {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.info-box h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: var(--cyan);
+}
+
+.info-box p {
+  color: var(--ink-dim);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 6px 0;
+}
+
+.info-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
+.info-box .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+.dot.cyan { background: var(--cyan); }
+.dot.pink { background: var(--pink); }
+
+/* ---------------- Footer ---------------- */
+
+.footer {
+  text-align: center;
+  color: var(--ink-dim);
+  font-size: 0.75rem;
+  padding: 20px;
+  font-family: 'JetBrains Mono', monospace;
+}
